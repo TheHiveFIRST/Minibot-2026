@@ -143,7 +143,11 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopPeriodic() {
-    //m_robotDrive.arcadeDrive(m_controller.getLeftX(), -m_controller.getLeftY());
-    m_robotDrive.tankDrive(-m_controller.getLeftY(), -m_controller.getRightY());
+
+    if (m_controller.getLeftBumperButton()) {
+      m_robotDrive.tankDrive(-m_controller.getLeftY(), -m_controller.getRightY());  //tank drive mode
+    } else {
+      m_robotDrive.arcadeDrive(-m_controller.getLeftY(), -m_controller.getRightX());  //arcade drive mode
+    }
   } 
 }
