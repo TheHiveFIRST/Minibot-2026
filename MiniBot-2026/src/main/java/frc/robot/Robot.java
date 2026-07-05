@@ -6,6 +6,7 @@ package frc.robot;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
+import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -30,10 +31,10 @@ public class Robot extends TimedRobot {
 
   // Double solenoid on PCM ports 1 (forward) and 2 (reverse)
   private final DoubleSolenoid m_solenoid =
-      new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 1, 2);
+      new DoubleSolenoid(PneumaticsModuleType.REVPH, 1, 2);
+  private final Compressor m_Compressor = new Compressor(PneumaticsModuleType.REVPH);
 
   // Tracks current toggle state so we know which way to flip next
-  private boolean m_solenoidExtended = false;
 
   /** Called once at the beginning of the robot program. */
   public Robot() {
@@ -44,14 +45,16 @@ public class Robot extends TimedRobot {
     rightBack.follow(rightFront);
     leftBack.follow(leftFront);
 
+
     timer = new Timer();
     m_robotDrive = new DifferentialDrive(leftFront::set, rightFront::set);
 
     rightFront.setInverted(true);
     rightBack.setInverted(true);
+    leftFront.setInverted(true);
 
     // Start the solenoid in a known state (retracted)
-    m_solenoid.set(DoubleSolenoid.Value.kReverse);
+    m_solenoid.set(DoubleSolenoid.Value.kForward);
   }
 
   @Override
@@ -62,24 +65,30 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousPeriodic() {
-    if (timer.get() < 2.0) {
+    m_Compressor.enableAnalog(70, 120);
+    if (timer.get() < 6.0) {
       // Smaller speed difference = wider turn = larger circle
-      leftFront.set(0.15);   // Original was 0.3 * 0.5 = 0.15
-      rightFront.set(0.15);  // Original was 0.3 * 0.5 = 0.15
+      m_robotDrive.arcadeDrive(0.5, 0); 
+       // Original was 0.3 * 0.5 = 0.15
+       m_solenoid.set(DoubleSolenoid.Value.kForward);
     } else {
-      leftFront.set(0);
-      rightFront.set(0);
+      m_robotDrive.arcadeDrive(0, 0);
+      m_solenoid.set(DoubleSolenoid.Value.kReverse);
     }
   }
 
   @Override
   public void teleopPeriodic() {
-    m_robotDrive.tankDrive(-m_controller.getLeftY() * 0.5, -m_controller.getRightY() * 0.5);  // tank drive mode
+    m_Compressor.enableAnalog(70, 120);
+    m_robotDrive.arcadeDrive(-m_controller.getLeftY() * 0.75, -m_controller.getLeftX() * 0.75);  // tank drive mode
 
     // Toggle the pneumatic in/out each time the A button is pressed
     if (m_controller.getAButtonPressed()) {
-      m_solenoidExtended = !m_solenoidExtended;
-      m_solenoid.set(m_solenoidExtended ? DoubleSolenoid.Value.kForward : DoubleSolenoid.Value.kReverse);
+     m_solenoid.set(DoubleSolenoid.Value.kReverse);
     }
+    if (m_controller.getBButtonPressed()) {
+     m_solenoid.set(DoubleSolenoid.Value.kForward);
+    }
+    
   }
 }
