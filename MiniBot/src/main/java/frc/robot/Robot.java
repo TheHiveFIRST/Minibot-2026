@@ -62,13 +62,15 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousPeriodic() {
-    if (timer.get() < 2.0) {
+    if (timer.get() < 5.0) {
       // Smaller speed difference = wider turn = larger circle
       leftFront.set(0.15);   // Original was 0.3 * 0.5 = 0.15
       rightFront.set(0.15);  // Original was 0.3 * 0.5 = 0.15
+      m_solenoid.set(DoubleSolenoid.Value.kForward);
     } else {
       leftFront.set(0);
       rightFront.set(0);
+      m_solenoid.set(DoubleSolenoid.Value.kReverse);
     }
   }
 
