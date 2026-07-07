@@ -65,7 +65,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousPeriodic() {
-    m_Compressor.enableAnalog(70, 120);
+    m_Compressor.enableAnalog(100, 120);
     if (timer.get() < 6.0) {
       // Smaller speed difference = wider turn = larger circle
       m_robotDrive.arcadeDrive(0.5, 0); 
@@ -79,7 +79,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopPeriodic() {
-    m_Compressor.enableAnalog(70, 120);
+    m_Compressor.enableAnalog(90, 120);
     m_robotDrive.arcadeDrive(-m_controller.getLeftY() * 0.75, -m_controller.getLeftX() * 0.75);  // tank drive mode
 
     // Toggle the pneumatic in/out each time the A button is pressed
